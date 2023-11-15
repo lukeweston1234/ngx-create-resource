@@ -15,8 +15,8 @@
     "README.md",
     "package.json"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Luke Weston",
+  "license": "MIT",
   "devDependencies": {
     "@types/jest": "^29.5.8",
     "jest": "^29.7.0",

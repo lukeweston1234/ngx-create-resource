@@ -15,11 +15,11 @@ import {
     error: any;
   }
   
-  interface ResourceOptions<T> {
+  export interface ResourceOptions<T> {
     initialValue: T;
   }
 
-  class Resource<T> implements IResource<T> {
+  export class Resource<T> implements IResource<T> {
     _data: BehaviorSubject<T | undefined>;
     _resource: Observable<T>;
     data$: Observable<T | undefined>;
