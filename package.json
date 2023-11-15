@@ -2,11 +2,19 @@
   "name": "rxjs-resource",
   "version": "0.5.0",
   "description": "A lightweight wrapper for RxJS Observables and asynchronous functions",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
   "scripts": {
     "test": "jest",
     "build": "tsc"
   },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md",
+    "package.json"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {

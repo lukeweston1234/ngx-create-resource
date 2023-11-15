@@ -8,7 +8,8 @@ import {
   
   interface IResource<T> {
     _data: BehaviorSubject<T | undefined>;
-    data: Observable<T | undefined>;
+    data$: Observable<T | undefined>;
+    data: T | undefined;
     _dataSubscription: Subscription;
     loading: boolean;
     error: any;
@@ -21,7 +22,8 @@ import {
   class AsyncResource<T> implements IResource<T> {
     _data: BehaviorSubject<T | undefined>;
     _resource: () => Promise<T>;
-    data: Observable<T | undefined>;
+    data$: Observable<T | undefined>;
+    data: T | undefined;
     // @ts-expect-error: "This is getting initialized in the constructor, kind of"
     _dataSubscription: Subscription;
     loading = true;
@@ -29,14 +31,17 @@ import {
     constructor(resource: () => Promise<T>, options?: ResourceOptions<T>) {
       this._resource = resource;
       this._data = new BehaviorSubject(options?.initialValue);
-      this.data = this._data as Observable<T>;
+      this.data$ = this._data as Observable<T>;
     }
   
     refetch() {
       if (this._dataSubscription !== undefined) {
         this._dataSubscription.unsubscribe();
       }
-      this.loading = true;
+      // We don't want to set loading to true if we have data and are refetching
+      if (this.data === undefined){
+        this.loading = true;
+      }
       this.error = null;
       const observable = from(this._resource()).pipe(
         catchError((error) => {
@@ -46,6 +51,7 @@ import {
       );
       this._dataSubscription = observable.subscribe((res) => {
         this._data.next(res);
+        this.data = res;
         if (res !== undefined && !this.loading) {
           this.loading = false;
           this.error = null;
@@ -65,7 +71,8 @@ import {
   class ObservableResource<T> implements IResource<T> {
     _data: BehaviorSubject<T | undefined>;
     _resource: Observable<T>;
-    data: Observable<T | undefined>;
+    data$: Observable<T | undefined>;
+    data: T | undefined;
     // @ts-expect-error: "This is getting initialized in the constructor, kind of"
     _dataSubscription: Subscription;
     loading = true;
@@ -73,7 +80,7 @@ import {
     constructor(resource: Observable<T>, options?: ResourceOptions<T>) {
       this._resource = resource;
       this._data = new BehaviorSubject(options?.initialValue);
-      this.data = this._data as Observable<T>;
+      this.data$ = this._data as Observable<T>;
       this.refetch();
     }
   
@@ -81,7 +88,10 @@ import {
       if (this._dataSubscription !== undefined) {
         this._dataSubscription.unsubscribe();
       }
-      this.loading = true;
+      // We don't want to set loading to true if we have data and are refetching
+      if (this.data === undefined){
+        this.loading = true;
+      }
       this.error = null;
       this._dataSubscription = this._resource
         .pipe(
@@ -92,6 +102,7 @@ import {
         )
         .subscribe((res) => {
           this._data.next(res);
+          this.data = res;
           if (res !== undefined && !this.loading) {
             this.loading = false;
             this.error = null;
