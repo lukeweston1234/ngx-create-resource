@@ -1,10 +1,10 @@
 {
   "name": "ngx-create-resource",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "A lightweight wrapper for RxJS Observables and asynchronous functions",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "test": "jest",
     "build": "tsc"
