@@ -1,5 +1,5 @@
 {
-  "name": "rxjs-resource",
+  "name": "ngx-create-resource",
   "version": "0.5.0",
   "description": "A lightweight wrapper for RxJS Observables and asynchronous functions",
   "main": "./dist/index.js",
