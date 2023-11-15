@@ -23,7 +23,6 @@ import {
     _data: BehaviorSubject<T | undefined>;
     _resource: Observable<T>;
     data$: Observable<T | undefined>;
-    data: T | undefined;
     // @ts-expect-error: "This is getting initialized in the constructor, kind of"
     _dataSubscription: Subscription;
     loading = true;
@@ -33,6 +32,10 @@ import {
       this._data = new BehaviorSubject(options?.initialValue);
       this.data$ = this._data as Observable<T>;
       this.refetch();
+    }
+
+    get data(){
+      return this._data.getValue();
     }
   
     refetch() {
@@ -53,7 +56,6 @@ import {
         )
         .subscribe((res) => {
           this._data.next(res);
-          this.data = res;
           if (res !== undefined && !this.loading) {
             this.loading = false;
             this.error = null;
@@ -72,14 +74,14 @@ import {
     }
   }
   
-  export function createObservableResource<T>(
+  export function createResource<T>(
     resource: Observable<T>,
     options?: ResourceOptions<T>,
   ) {
     return new Resource(resource, options);
   }
   
-  export function createAsyncResource<T>(
+  export function createResourceFromAsync<T>(
     resource: () => Promise<T>,
     options?: ResourceOptions<T>,
   ) {
