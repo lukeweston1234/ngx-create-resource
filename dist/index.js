@@ -5,14 +5,18 @@ const rxjs_1 = require("rxjs");
 class Resource {
     constructor(resource, options) {
         this.loading = true;
-        this.error = null;
         this._resource = resource;
         this._data = new rxjs_1.BehaviorSubject(options === null || options === void 0 ? void 0 : options.initialValue);
+        this._error = new rxjs_1.BehaviorSubject(null);
         this.data$ = this._data;
+        this.error$ = this._error;
         this.refetch();
     }
     get data() {
         return this._data.getValue();
+    }
+    get error() {
+        return this._error.getValue();
     }
     refetch() {
         if (this._dataSubscription !== undefined) {
@@ -22,17 +26,18 @@ class Resource {
         if (this.data === undefined) {
             this.loading = true;
         }
-        this.error = null;
+        this._error.next(null);
         this._dataSubscription = this._resource
             .pipe((0, rxjs_1.catchError)((error) => {
-            this.error = error;
+            this._error.next(error);
+            console.error(error);
             return [undefined];
         }))
             .subscribe((res) => {
             this._data.next(res);
-            if (res !== undefined && !this.loading) {
+            if (res !== undefined) {
                 this.loading = false;
-                this.error = null;
+                this._error.next(null);
             }
         });
     }
