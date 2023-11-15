@@ -18,57 +18,8 @@ import {
   interface ResourceOptions<T> {
     initialValue: T;
   }
-  
-  class AsyncResource<T> implements IResource<T> {
-    _data: BehaviorSubject<T | undefined>;
-    _resource: () => Promise<T>;
-    data$: Observable<T | undefined>;
-    data: T | undefined;
-    // @ts-expect-error: "This is getting initialized in the constructor, kind of"
-    _dataSubscription: Subscription;
-    loading = true;
-    error: any = null;
-    constructor(resource: () => Promise<T>, options?: ResourceOptions<T>) {
-      this._resource = resource;
-      this._data = new BehaviorSubject(options?.initialValue);
-      this.data$ = this._data as Observable<T>;
-    }
-  
-    refetch() {
-      if (this._dataSubscription !== undefined) {
-        this._dataSubscription.unsubscribe();
-      }
-      // We don't want to set loading to true if we have data and are refetching
-      if (this.data === undefined){
-        this.loading = true;
-      }
-      this.error = null;
-      const observable = from(this._resource()).pipe(
-        catchError((error) => {
-          this.error = error;
-          return [undefined];
-        }),
-      );
-      this._dataSubscription = observable.subscribe((res) => {
-        this._data.next(res);
-        this.data = res;
-        if (res !== undefined && !this.loading) {
-          this.loading = false;
-          this.error = null;
-        }
-      });
-    }
-  
-    mutate(value: T) {
-      this._data.next(value);
-    }
-  
-    unsubscribe() {
-      this._dataSubscription.unsubscribe();
-    }
-  }
-  
-  class ObservableResource<T> implements IResource<T> {
+
+  class Resource<T> implements IResource<T> {
     _data: BehaviorSubject<T | undefined>;
     _resource: Observable<T>;
     data$: Observable<T | undefined>;
@@ -125,13 +76,13 @@ import {
     resource: Observable<T>,
     options?: ResourceOptions<T>,
   ) {
-    return new ObservableResource(resource, options);
+    return new Resource(resource, options);
   }
   
   export function createAsyncResource<T>(
     resource: () => Promise<T>,
     options?: ResourceOptions<T>,
   ) {
-    return new AsyncResource(resource, options);
+    return new Resource(from(resource()), options);
   }
   
