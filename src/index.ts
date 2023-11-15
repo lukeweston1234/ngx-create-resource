@@ -16,15 +16,18 @@ export class Resource<T> {
   data$: Observable<T | undefined>;
   // @ts-expect-error: "This is getting initialized in the constructor, kind of"
   private _dataSubscription: Subscription;
-  loading = true;
   error$: Observable<any>;
   private _error: BehaviorSubject<any>;
+  private _loading: BehaviorSubject<boolean>;
+  loading$: Observable<boolean>;
   constructor(resource: Observable<T>, options?: ResourceOptions<T>) {
     this._resource = resource;
     this._data = new BehaviorSubject(options?.initialValue);
-    this._error = new BehaviorSubject(null);
     this.data$ = this._data as Observable<T>;
+    this._error = new BehaviorSubject(null);
     this.error$ = this._error as Observable<any>;
+    this._loading = new BehaviorSubject(true);
+    this.loading$ = this._loading as Observable<boolean>;
     this.refetch();
   }
 
@@ -36,13 +39,17 @@ export class Resource<T> {
     return this._error.getValue();
   }
 
+  get loading(){
+    return this._loading.getValue();
+  }
+
   refetch() {
     if (this._dataSubscription !== undefined) {
       this._dataSubscription.unsubscribe();
     }
     // We don't want to set loading to true if we have data and are refetching
     if (this.data === undefined) {
-      this.loading = true;
+      this._loading.next(true);
     }
     this._error.next(null);
     this._dataSubscription = this._resource
@@ -56,7 +63,7 @@ export class Resource<T> {
       .subscribe((res) => {
         this._data.next(res);
         if (res !== undefined) {
-          this.loading = false;
+          this._loading.next(false);
           this._error.next(null);
         }
       });

@@ -7,12 +7,14 @@ export declare class Resource<T> {
     private _resource;
     data$: Observable<T | undefined>;
     private _dataSubscription;
-    loading: boolean;
     error$: Observable<any>;
     private _error;
+    private _loading;
+    loading$: Observable<boolean>;
     constructor(resource: Observable<T>, options?: ResourceOptions<T>);
     get data(): T | undefined;
     get error(): any;
+    get loading(): boolean;
     refetch(): void;
     mutate(value: T): void;
     unsubscribe(): void;
