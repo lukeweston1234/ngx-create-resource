@@ -6,7 +6,7 @@ This library takes heavy inspiration from SolidJS' createResource function, the 
 
 ### Examples
 
-```
+```typescript
 @Component({
     selector: "app-cars-dashboard",
     templateUrl: "./cars-dashboard.component.html",
